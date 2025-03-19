@@ -7,6 +7,7 @@ import { Button } from "./ui/button";
 import uuid4 from 'uuid4'
 import { Input } from "./ui/input";
 import PdfViewer from "./PdfViewer";
+import LoadingSpinner from "./LoadingSpinner";
 
 export default function UploadPDF() {
   const generateUploadURL = useMutation(api.fileStorage.generateUploadUrl)
@@ -80,52 +81,79 @@ export default function UploadPDF() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center p-6 space-y-4">
-      <div className="w-full max-w-md">
-        <input 
+    <div className="container mx-auto p-4">
+      {/* Upload Controls */}
+      <div className="flex gap-4 mb-6">
+        <Input 
           type="file" 
           accept="application/pdf" 
           onChange={OnFileSelect}
-          className="w-full p-2 border rounded-lg" 
+          className="flex-1"
         />
-      </div>
-
-      <Input 
-        placeholder="Enter the name of the file" 
-        onChange={(e) => setFileName(e.target.value)}
-        className="w-full max-w-md"
-      />
-
-      <Button 
-        onClick={OnUpload} 
-        disabled={loading}
-        className="w-full max-w-md"
-      >
-        {loading ? 'Loading...' : 'Load PDF'}
-      </Button>
-      
-      <div className="w-full max-w-2xl">
-        {fileUrl && <PdfViewer fileUrl={fileUrl} />}
-      </div>
-      
-      {fileUrl && (
+        <Input 
+          placeholder="Enter the name of the file" 
+          onChange={(e) => setFileName(e.target.value)}
+          className="flex-1"
+        />
         <Button 
-          onClick={extractAnswerSheet} 
+          onClick={OnUpload} 
           disabled={loading}
-          className="w-full max-w-md"
+          className="w-32"
         >
-          {loading ? 'Extracting...' : 'Extract Answer Sheet'}
+          {loading ? <LoadingSpinner /> : 'Load PDF'}
         </Button>
-      )}
-      
-      {extractedResult && (
-        <div className="w-full max-w-2xl mt-4 p-6 bg-gray-50 rounded-lg shadow">
-          <h2 className="text-xl font-semibold mb-4">Extracted Answer Sheet:</h2>
-          <pre className="bg-white p-4 rounded-md overflow-auto whitespace-pre-wrap">
-            {JSON.stringify(extractedResult)}
-          </pre>
+      </div>
+
+      {/* Main Content Area */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Left Side - PDF Viewer */}
+        <div className="w-full h-[800px] border rounded-lg shadow-lg bg-white">
+          {fileUrl ? (
+            <PdfViewer fileUrl={fileUrl} />
+          ) : (
+            <div className="h-full flex items-center justify-center text-gray-500">
+              No PDF loaded
+            </div>
+          )}
         </div>
-      )}
+
+        {/* Right Side - Extraction Results */}
+        <div className="w-full h-[800px] border rounded-lg shadow-lg bg-white p-4">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold">Extracted Results</h2>
+            <Button 
+              onClick={extractAnswerSheet} 
+              disabled={!fileUrl || loading}
+              className="w-40"
+            >
+              {loading ? <LoadingSpinner /> : 'Extract Answer Sheet'}
+            </Button>
+          </div>
+
+          {loading && (
+            <div className="h-[calc(100%-4rem)] flex items-center justify-center">
+              <div className="text-center">
+                <LoadingSpinner />
+                <p className="mt-4 text-gray-600">Processing PDF...</p>
+              </div>
+            </div>
+          )}
+
+          {!loading && extractedResult && (
+            <div className="h-[calc(100%-4rem)] overflow-auto">
+              <pre className="bg-gray-50 p-4 rounded-md whitespace-pre-wrap">
+                {JSON.stringify(extractedResult, null, 2)}
+              </pre>
+            </div>
+          )}
+
+          {!loading && !extractedResult && (
+            <div className="h-[calc(100%-4rem)] flex items-center justify-center text-gray-500">
+              No data extracted yet
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
