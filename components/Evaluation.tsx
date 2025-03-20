@@ -34,26 +34,32 @@ export default function Evaluation() {
       <Button 
         onClick={handleConversion}
         disabled={loading}
-        className="mb-4"
+        className="mb-4 transition-all duration-200 hover:scale-105 hover:shadow-lg bg-gradient-to-r from-blue-500 to-blue-700"
       >
         {loading ? <LoadingSpinner /> : 'Evaluate'}
       </Button>
 
-      <Card>
+      <Card className="transition-all duration-300 hover:shadow-xl bg-gradient-to-br from-white to-gray-50">
         <CardHeader>
-          <CardTitle>Result</CardTitle>
+          <CardTitle className="text-xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
+            Result
+          </CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (
-            <div className="flex items-center justify-center p-4">
+            <div className="flex items-center justify-center p-8 animate-pulse">
               <LoadingSpinner />
             </div>
           ) : (
-            <div className="p-4 bg-gray-50 rounded-lg">
+            <div className="p-6 rounded-lg bg-opacity-50 backdrop-blur-sm bg-gradient-to-br from-gray-50 to-gray-100 shadow-inner">
               {result ? (
-                <pre className="whitespace-pre-wrap">{result}</pre>
+                <pre className="whitespace-pre-wrap text-gray-700 font-mono">
+                  {result}
+                </pre>
               ) : (
-                <p className="text-gray-500">No result yet. Click the button to obtain result.</p>
+                <p className="text-gray-500 text-center italic">
+                  No result yet. Click the button to obtain result.
+                </p>
               )}
             </div>
           )}
